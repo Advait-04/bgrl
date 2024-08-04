@@ -9,6 +9,7 @@ class BasalGangliaMDP(gym.Env):
         self.states = ['Cortex', 'Striatum', 'GPe', 'STN', 'GPi', 'Thalamus']
 
         self.actions = ["activation", "inhibition"]
+        self.action_space = gym.spaces.Discrete(len(self.actions))
 
         self.transition_probabilities = {
             "Cortex": {
