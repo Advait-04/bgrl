@@ -51,8 +51,85 @@ class BasalGangliaMDP(gym.Env):
 
         self.state = "Cortex"
 
-    def calculate_rewards(self):
-        print()
+    def calculate_rewards(self, state, action, next_state, dopamine, acetyl, levodopa):
+          if(dopamine <= 39.6 and acetyl > 2.5 and levodopa < 100):
+            if(state == "Cortex" and next_state == "Striatum"):
+              if(action == "activation"):
+                return self.rewards.get((self.state, action, next_state), 0) * -100
+              elif(action == "inhibition"):
+                return self.rewards.get((self.state, action, next_state), 0) * 250
+
+            elif(state=="Striatum" and next_state=="GPe"):
+                return self.rewards.get((self.state, action, next_state), 0) * 400
+
+            elif(state=="Striatum" and next_state=="GPi"):
+                return self.rewards.get((self.state, action, next_state), 0) * -250
+
+            elif(state=="GPe" and next_state=="STN"):
+                return self.rewards.get((self.state, action, next_state), 0) * 500
+
+            elif(state=="STN" and next_state=="GPi"):
+                return self.rewards.get((self.state, action, next_state), 0) * 600
+
+            elif(state=="GPi" and next_state=="Thalamus"):
+                return self.rewards.get((self.state, action, next_state), 0) * 800
+
+            else:
+                raise Exception("Get good bro")
+
+
+          elif(dopamine <= 39.6 and acetyl > 2.5 and levodopa >= 100 and levodopa <=250):
+            if(state == "Cortex" and next_state == "Striatum"):
+              if(action == "activation"):
+                return self.rewards.get((self.state, action, next_state), 0) * 200
+
+              elif(action == "inhibition"):
+                return self.rewards.get((self.state, action, next_state), 0) * -150
+
+            elif(state=="Striatum" and next_state=="GPe"):
+                return self.rewards.get((self.state, action, next_state), 0) * -200
+
+            elif(state=="Striatum" and next_state=="GPi"):
+                return self.rewards.get((self.state, action, next_state), 0) * 450
+
+            elif(state=="GPe" and next_state=="STN"):
+                return self.rewards.get((self.state, action, next_state), 0) * -300
+
+            elif(state=="STN" and next_state=="GPi"):
+                return self.rewards.get((self.state, action, next_state), 0) * -350
+
+            elif(state=="GPi" and next_state=="Thalamus"):
+                return self.rewards.get((self.state, action, next_state), 0) * 1000
+
+            else:
+                raise Exception("Get good bro")
+
+
+          elif(dopamine > 39.6 and dopamine <= 195.8 and acetyl >=0.5 and acetyl <= 2.5):
+            if(state == "Cortex" and next_state == "Striatum"):
+              if(action == "activation"):
+                return self.rewards.get((self.state, action, next_state), 0) * 200
+
+              elif(action == "inhibition"):
+                return self.rewards.get((self.state, action, next_state), 0) * -150
+
+            elif(state=="Striatum" and next_state=="GPe"):
+                return self.rewards.get((self.state, action, next_state), 0) * -200
+
+            elif(state=="Striatum" and next_state=="GPi"):
+                return self.rewards.get((self.state, action, next_state), 0) * 550
+
+            elif(state=="GPe" and next_state=="STN"):
+                return self.rewards.get((self.state, action, next_state), 0) * -300
+
+            elif(state=="STN" and next_state=="GPi"):
+                return self.rewards.get((self.state, action, next_state), 0) * -350
+
+            elif(state=="GPi" and next_state=="Thalamus"):
+                return self.rewards.get((self.state, action, next_state), 0) * 1000
+
+            else:
+                raise Exception("Get good bro")
 
     def step(self, action, dopamine, acetyl, levodopa):
         next_state_probs = self.transition_probabilities[self.state][action]
