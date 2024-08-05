@@ -9,8 +9,5 @@ if __name__=="__main__":
     env = BasalGangliaMDP()
     agent = DQNAgent(state_space_size=len(env.states), action_space_size=env.action_space.n)
     
-    # Train the model
     train_model(env, agent)
-    
-    # Test the model
     test_model(env, agent)
