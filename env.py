@@ -1,3 +1,4 @@
+from enum import CONTINUOUS
 import gym
 import numpy as np
 
@@ -13,7 +14,7 @@ class BasalGangliaMDP(gym.Env):
 
         self.transition_probabilities = {
             "Cortex": {
-                "activation": {"Striatum": 1.0},
+                "activation": {"Striatum": 0.5, "STN": 0.5},
                 "inhibition": {"Striatum": 1.0}
             },
             "Striatum": {
@@ -52,84 +53,40 @@ class BasalGangliaMDP(gym.Env):
         self.state = "Cortex"
 
     def calculate_rewards(self, state, action, next_state, dopamine, acetyl, levodopa):
-          if(dopamine <= 39.6 and acetyl > 2.5 and levodopa < 100):
-            if(state == "Cortex" and next_state == "Striatum"):
-              if(action == "activation"):
-                return self.rewards.get((self.state, action, next_state), 0) * -100
-              elif(action == "inhibition"):
-                return self.rewards.get((self.state, action, next_state), 0) * 250
+        direct_pathway = [("Cortex", "activation", "Striatum"),
+                          ("Striatum", "inhibition", "GPe"),
+                          ("GPe", "inhibition", "STN"),
+                          ("STN", "activation", "GPi"),
+                          ("GPi", "inhibition", "Thalamus")]
 
-            elif(state=="Striatum" and next_state=="GPe"):
-                return self.rewards.get((self.state, action, next_state), 0) * 400
+        hyper_direct_pathway = [("Cortex", "activation", "STN"),
+                                ("STN", "activation", "GPi"),
+                                ("GPi", "inhibition", "Thalamus")]
 
-            elif(state=="Striatum" and next_state=="GPi"):
-                return self.rewards.get((self.state, action, next_state), 0) * -250
+        indirect_pathway = [("Cortex", "activation", "Striatum"),
+                            ("Striatum", "inhibition", "GPi"),
+                            ("GPi", "inhibition", "Thalamus")]
 
-            elif(state=="GPe" and next_state=="STN"):
-                return self.rewards.get((self.state, action, next_state), 0) * 500
-
-            elif(state=="STN" and next_state=="GPi"):
-                return self.rewards.get((self.state, action, next_state), 0) * 600
-
-            elif(state=="GPi" and next_state=="Thalamus"):
-                return self.rewards.get((self.state, action, next_state), 0) * 800
-
+        if dopamine < 39.6 and acetyl > 2.5:
+            if (state, action, next_state) in direct_pathway:
+                return self.rewards.get((state, action, next_state), 1.0)
             else:
-                raise Exception("Get good bro")
+                return -1.0  # Negative reward for incorrect path
 
-
-          elif(dopamine <= 39.6 and acetyl > 2.5 and levodopa >= 100 and levodopa <=250):
-            if(state == "Cortex" and next_state == "Striatum"):
-              if(action == "activation"):
-                return self.rewards.get((self.state, action, next_state), 0) * 200
-
-              elif(action == "inhibition"):
-                return self.rewards.get((self.state, action, next_state), 0) * -150
-
-            elif(state=="Striatum" and next_state=="GPe"):
-                return self.rewards.get((self.state, action, next_state), 0) * -200
-
-            elif(state=="Striatum" and next_state=="GPi"):
-                return self.rewards.get((self.state, action, next_state), 0) * 450
-
-            elif(state=="GPe" and next_state=="STN"):
-                return self.rewards.get((self.state, action, next_state), 0) * -300
-
-            elif(state=="STN" and next_state=="GPi"):
-                return self.rewards.get((self.state, action, next_state), 0) * -350
-
-            elif(state=="GPi" and next_state=="Thalamus"):
-                return self.rewards.get((self.state, action, next_state), 0) * 1000
-
+        elif 39.6 <= dopamine <= 59.6 and 1 <= acetyl <= 2:
+            if (state, action, next_state) in hyper_direct_pathway:
+                return self.rewards.get((state, action, next_state), 1.0)
             else:
-                raise Exception("Get good bro")
+                return -1.0  # Negative reward for incorrect path
 
-
-          elif(dopamine > 39.6 and dopamine <= 195.8 and acetyl >=0.5 and acetyl <= 2.5):
-            if(state == "Cortex" and next_state == "Striatum"):
-              if(action == "activation"):
-                return self.rewards.get((self.state, action, next_state), 0) * 200
-
-              elif(action == "inhibition"):
-                return self.rewards.get((self.state, action, next_state), 0) * -150
-
-            elif(state=="Striatum" and next_state=="GPe"):
-                return self.rewards.get((self.state, action, next_state), 0) * -200
-
-            elif(state=="Striatum" and next_state=="GPi"):
-                return self.rewards.get((self.state, action, next_state), 0) * 550
-
-            elif(state=="GPe" and next_state=="STN"):
-                return self.rewards.get((self.state, action, next_state), 0) * -300
-
-            elif(state=="STN" and next_state=="GPi"):
-                return self.rewards.get((self.state, action, next_state), 0) * -350
-
-            elif(state=="GPi" and next_state=="Thalamus"):
-                return self.rewards.get((self.state, action, next_state), 0) * 1000
-
+        elif 59.6 < dopamine <= 195.8 and acetyl < 0.5:
+            if (state, action, next_state) in indirect_pathway:
+                return self.rewards.get((state, action, next_state), 1.0)
             else:
-                raise Exception("Get good bro")
+                return -1.0  # Negative reward for incorrect path
+
+        else:
+            return 0.0  # Neutral reward if none of the conditions match
 
     def step(self, action, dopamine, acetyl, levodopa):
         next_state_probs = self.transition_probabilities[self.state][action]
