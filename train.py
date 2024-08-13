@@ -3,11 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def train_model(env, agent):
-    data = get_dataset()
-    dopamine_values, acetyl_values, levodopa_values = data
+    data = get_dataset(1000)
+    dopamine_values, acetyl_values = data
     common_length = len(dopamine_values)
 
-    num_episodes = 100
+    num_episodes = 1000
     batch_size = 32
     cumulative_rewards = []
     convergence_threshold = 1900
@@ -22,7 +22,6 @@ def train_model(env, agent):
 
         dopamine_value = dopamine_values[episode % common_length]
         acetyl_value = acetyl_values[episode % common_length]
-        levodopa_value = levodopa_values[episode % common_length]
 
         state = env.reset()
         state_episode.append(state)
@@ -34,7 +33,7 @@ def train_model(env, agent):
             while env.actions[action] not in env.transition_probabilities[state]:
                 action = agent.select_action(state_index)
 
-            next_state, reward, done, _ = env.step(env.actions[action], dopamine_value, acetyl_value, levodopa_value)
+            next_state, reward, done, _ = env.step(env.actions[action], dopamine_value, acetyl_value)
             next_state_index = env.states.index(next_state)
             agent.memory.append((state_index, action, reward, next_state_index, done))
 

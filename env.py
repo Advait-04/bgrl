@@ -1,4 +1,3 @@
-from enum import CONTINUOUS
 import gym
 import numpy as np
 
@@ -52,7 +51,7 @@ class BasalGangliaMDP(gym.Env):
 
         self.state = "Cortex"
 
-    def calculate_rewards(self, state, action, next_state, dopamine, acetyl, levodopa):
+    def calculate_rewards(self, state, action, next_state, dopamine, acetyl):
         direct_pathway = [("Cortex", "activation", "Striatum"),
                           ("Striatum", "inhibition", "GPe"),
                           ("GPe", "inhibition", "STN"),
@@ -88,7 +87,8 @@ class BasalGangliaMDP(gym.Env):
         else:
             return 0.0  # Neutral reward if none of the conditions match
 
-    def step(self, action, dopamine, acetyl, levodopa):
+    def step(self, action, dopamine, acetyl):
+
         next_state_probs = self.transition_probabilities[self.state][action]
         next_state = np.random.choice(
             list(next_state_probs.keys()), p=list(next_state_probs.values()))
@@ -96,7 +96,7 @@ class BasalGangliaMDP(gym.Env):
         # reward = self.rewards.get((self.state, action, next_state), 0)
 
         reward = self.calculate_rewards(
-            self.state, action, next_state, dopamine, acetyl, levodopa)
+            self.state, action, next_state, dopamine, acetyl)
 
         self.state = next_state
 
