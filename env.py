@@ -52,7 +52,7 @@ class BasalGangliaMDP(gym.Env):
         self.state = "Cortex"
 
     def calculate_rewards(self, state, action, next_state, dopamine, acetyl):
-        direct_pathway = [("Cortex", "activation", "Striatum"),
+        indirect_pathway = [("Cortex", "activation", "Striatum"),
                           ("Striatum", "inhibition", "GPe"),
                           ("GPe", "inhibition", "STN"),
                           ("STN", "activation", "GPi"),
@@ -62,12 +62,12 @@ class BasalGangliaMDP(gym.Env):
                                 ("STN", "activation", "GPi"),
                                 ("GPi", "inhibition", "Thalamus")]
 
-        indirect_pathway = [("Cortex", "activation", "Striatum"),
+        direct_pathway = [("Cortex", "activation", "Striatum"),
                             ("Striatum", "inhibition", "GPi"),
                             ("GPi", "inhibition", "Thalamus")]
 
         if dopamine < 39.6 and acetyl > 2.5:
-            if (state, action, next_state) in direct_pathway:
+            if (state, action, next_state) in indirect_pathway:
                 return self.rewards.get((state, action, next_state), 1.0)
             else:
                 return -1.0  # Negative reward for incorrect path
@@ -79,7 +79,7 @@ class BasalGangliaMDP(gym.Env):
                 return -1.0  # Negative reward for incorrect path
 
         elif 59.6 < dopamine <= 195.8 and acetyl < 0.5:
-            if (state, action, next_state) in indirect_pathway:
+            if (state, action, next_state) in direct_pathway:
                 return self.rewards.get((state, action, next_state), 1.0)
             else:
                 return -1.0  # Negative reward for incorrect path

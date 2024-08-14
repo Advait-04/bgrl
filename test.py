@@ -3,10 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def test_model(env, agent):
-    data = get_dataset(10)
+    data = get_dataset(150)
     dopamine_values, acetyl_values = data
 
-    no_iterations = 50
+    no_iterations = 150
     direct_array = ["Cortex", "Striatum", "GPi", "Thalamus"]
     indirect_array = ["Cortex", "Striatum", "GPe", "STN", "GPi", "Thalamus"]
     hyperdirect_array = ["Cortex", "STN", "GPi", "Thalamus"]

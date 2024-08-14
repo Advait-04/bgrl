@@ -3,11 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def train_model(env, agent):
-    data = get_dataset(1000)
+    data = get_dataset(300)
     dopamine_values, acetyl_values = data
     common_length = len(dopamine_values)
 
-    num_episodes = 1000
+    num_episodes = 300
     batch_size = 32
     cumulative_rewards = []
     convergence_threshold = 1900
